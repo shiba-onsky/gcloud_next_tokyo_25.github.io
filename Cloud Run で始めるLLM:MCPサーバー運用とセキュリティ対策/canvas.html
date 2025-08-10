@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Run ではじめる LLM/MCP サーバー運用とセキュリティ対策</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Rainbow Gradient & Slate -->
+    <!-- Application Structure Plan: A concept-to-application structure. It starts by defining the core concepts (LLM, MCP) to build a foundation. It then visualizes the processing flow step-by-step using an interactive diagram. It covers the "why" of self-hosting and specifically "why Cloud Run". It then details the security approach by comparing web app and AI app security risks, linking specific Google Cloud services to mitigate these risks. It concludes with a comprehensive summary. This structure is designed to be educational, guiding the user from basic definitions to a complete architectural and security understanding. -->
+    <!-- Visualization & Content Choices: 
+        - Core Concepts (LLM, MCP): Goal: Inform. Method: Simple text definitions with icons. Justification: Clear and concise for foundational knowledge.
+        - Processing Flow: Goal: Show Process. Method: An interactive, multi-stage HTML/CSS diagram. Interaction: Buttons to progress through the flow stages. Justification: Breaks down a complex data flow into easy-to-understand steps.
+        - Why Cloud Run: Goal: Inform. Method: Icon-based feature blocks. Justification: Visually highlights the key benefits.
+        - Security Risks & Mitigations: Goal: Compare/Inform. Method: Side-by-side comparison tables linked to specific architectural diagrams showing the Google Cloud solution. Justification: Provides a direct, clear comparison of OWASP risks and demonstrates practical mitigation strategies within the platform.
+        - Summary: Goal: Summarize. Method: A clear, bulleted list. Justification: Provides a concise checklist of key security measures. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .header-gradient {
+            background: linear-gradient(90deg, #fde68a, #fca5a5, #a78bfa, #818cf8);
+        }
+        .diagram-box {
+            border: 2px solid #e5e7eb;
+            background-color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .flow-arrow {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .security-box {
+            background-color: #f3f4f6; 
+            padding: 0.5rem; 
+            border-radius: 0.375rem; 
+            font-size: 0.875rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-slate-800">
+                LLM/MCP on <span class="text-blue-600">Cloud Run</span>
+            </div>
+            <div class="hidden md:flex flex-wrap space-x-6">
+                <a href="#concepts" class="text-slate-600 hover:text-blue-600 transition">基本概念</a>
+                <a href="#flow" class="text-slate-600 hover:text-blue-600 transition">処理フロー</a>
+                <a href="#why-cloudrun" class="text-slate-600 hover:text-blue-600 transition">なぜCloud Runか</a>
+                <a href="#security" class="text-slate-600 hover:text-blue-600 transition">セキュリティ</a>
+                <a href="#summary" class="text-slate-600 hover:text-blue-600 transition">まとめ</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="title" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                 <div class="inline-block p-1 rounded-lg header-gradient">
+                    <div class="bg-white p-10 rounded-md">
+                        <h1 class="text-3xl md:text-5xl font-bold text-slate-900">Cloud Run ではじめる<br>LLM/MCP サーバー運用と<br>セキュリティ対策</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concepts" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="text-4xl mr-4">🧠</div>
+                            <h2 class="text-2xl font-bold text-slate-900">LLM（大規模言語モデル）とは</h2>
+                        </div>
+                        <p class="text-slate-600 mb-4">膨大なデータと深層学習により構築された言語モデル。「プログラムがたくさん言葉を学ぶことによって、人間のように文章を理解し作り出せるもの」。</p>
+                        <p class="text-sm text-slate-500">例) Gemini 2.5, GPT-4.5, Claude Sonnet 4</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="text-4xl mr-4">🧩</div>
+                            <h2 class="text-2xl font-bold text-slate-900">MCP とは</h2>
+                        </div>
+                        <p class="text-slate-600 mb-4">AIモデルが外部のツールを呼び出すための<span class="font-bold">標準化プロトコル</span>。LLMが学習した以外の情報に対して、「LLMの代わりに外部から情報を提供する」役割を担うのが<span class="font-bold">MCPサーバー</span>です。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="flow" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">LLM / MCP サーバーが利用された処理フロー</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">ユーザーからのリクエストが、AIアプリケーション、LLM、MCPサーバー間でどのように処理されるのかをステップごとに解説します。</p>
+                </div>
+
+                <div id="flow-diagram" class="bg-slate-100 p-8 rounded-xl border max-w-5xl mx-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                        <!-- User & Host -->
+                        <div class="flex flex-col items-center space-y-4">
+                             <div class="diagram-box">👤 ユーザー</div>
+                             <div id="arrow-user-host" class="text-3xl text-slate-400 opacity-0 flow-arrow">↓</div>
+                             <div class="diagram-box w-full">
+                                <p class="font-bold">🤖 AIアプリケーション (MCPホスト)</p>
+                                <div class="mt-2 space-y-2">
+                                    <div class="diagram-box bg-slate-200 text-sm">MCPクライアント</div>
+                                    <div class="diagram-box bg-slate-200 text-sm">MCPクライアント</div>
+                                </div>
+                             </div>
+                             <div id="arrow-host-llm" class="text-3xl text-slate-400 opacity-0 flow-arrow">↕</div>
+                             <div class="diagram-box w-full">🧠 LLM</div>
+                        </div>
+                        <!-- Servers -->
+                        <div class="flex flex-col items-center space-y-4 md:mt-24">
+                            <div id="arrow-host-mcp1" class="text-3xl text-slate-400 opacity-0 flow-arrow">→</div>
+                            <div class="diagram-box w-full">📦 MCPサーバー</div>
+                            <div class="diagram-box w-full mt-16">📦 MCPサーバー</div>
+                            <div id="arrow-host-mcp2" class="text-3xl text-slate-400 opacity-0 flow-arrow">→</div>
+                        </div>
+                        <!-- Data Sources -->
+                         <div class="flex flex-col items-center space-y-4 md:mt-24">
+                            <div id="arrow-mcp-data" class="text-3xl text-slate-400 opacity-0 flow-arrow">→</div>
+                             <div class="diagram-box">🗄️ 内部データ</div>
+                             <div class="diagram-box w-full mt-16">🌐 外部サービス</div>
+                        </div>
+                    </div>
+                     <p id="flow-text" class="mt-6 text-center font-semibold text-indigo-600 h-6"></p>
+                </div>
+                <div class="flex justify-center mt-8 space-x-4">
+                    <button id="flow-reset" class="px-4 py-2 bg-slate-300 rounded-lg font-semibold">リセット</button>
+                    <button id="flow-next" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold">次へ</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="why-cloudrun" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">なぜ、LLMやMCPサーバーを<br>使う場合にCloud Runを選択するのか？</h2>
+                </div>
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                             <img src="https://lh3.googleusercontent.com/drive-viewer/AKGpihY0-tV5y2h1L8h9i-Tz8jZ2c_1Y_7J2x8G_7_0y_x_w_1X_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_-w40-h40" class="mr-4"/>
+                            <h3 class="text-xl font-bold">一番のメリットはゼロスケール</h3>
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 mt-4">
+                            <li>未使用時はインスタンス数を<span class="font-bold">0</span>にできる（アイドルコストが発生しない）</li>
+                            <li>散発的な利用特性と相性が良い（課金は秒単位）</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                            <img src="https://lh3.googleusercontent.com/drive-viewer/AKGpihY0-tV5y2h1L8h9i-Tz8jZ2c_1Y_7J2x8G_7_0y_x_w_1X_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_-w40-h40" class="mr-4"/>
+                            <h3 class="text-xl font-bold">LLMワークロード向けにGPUが利用可能</h3>
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 mt-4">
+                            <li>GPUのドライバーインストール等は不要</li>
+                            <li>数秒〜数十秒でデプロイ</li>
+                            <li class="text-red-600">（注意）東京・大阪リージョンでは未対応（2025年7月23日時点）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="security" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">必要なセキュリティ対策のアプローチ</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-3xl mx-auto">LLM/MCPサーバーも、結局のところはWebアプリケーションです。従来のWebセキュリティ対策を基本としつつ、AI特有のリスクを考慮する必要があります。</p>
+                </div>
+                <div class="max-w-5xl mx-auto space-y-12">
+                    <div class="bg-slate-100 p-8 rounded-xl border">
+                        <h3 class="text-2xl font-bold text-center mb-8">Web Appセキュリティ × 生成AI Appセキュリティ</h3>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <!-- OWASP Top 10 -->
+                            <div class="bg-white p-6 rounded-lg shadow">
+                                <h4 class="font-bold text-xl text-center mb-4">OWASP Top 10</h4>
+                                <div class="space-y-2">
+                                    <div class="security-box">不適切なアクセス制御</div>
+                                    <div class="security-box">暗号化の失敗</div>
+                                    <div class="security-box">インジェクション</div>
+                                    <div class="security-box">セキュアでない設計</div>
+                                    <div class="security-box">セキュリティ設定の不備</div>
+                                    <div class="security-box">脆弱で古いコンポーネント</div>
+                                    <div class="security-box">識別と認証の失敗</div>
+                                    <div class="security-box">ソフトウェアとデータの整合性の失敗</div>
+                                    <div class="security-box">セキュリティログとモニタリングの失敗</div>
+                                    <div class="security-box">SSRF</div>
+                                </div>
+                            </div>
+                            <!-- OWASP Top 10 for AI -->
+                            <div class="bg-white p-6 rounded-lg shadow border-2 border-amber-400">
+                                 <h4 class="font-bold text-xl text-center mb-4">OWASP Top 10 for AI Applications 2025</h4>
+                                 <div class="space-y-2">
+                                    <div class="security-box">プロンプトインジェクション</div>
+                                    <div class="security-box">機密情報の漏えい</div>
+                                    <div class="security-box">サプライチェーン</div>
+                                    <div class="security-box">データやモデルの汚染</div>
+                                    <div class="security-box">不適切な出力のハンドリング</div>
+                                    <div class="security-box">過剰な代理行為</div>
+                                    <div class="security-box">システムプロンプトの流出</div>
+                                    <div class="security-box">ベクトル化と埋め込みの脆弱性</div>
+                                    <div class="security-box">不正確な情報</div>
+                                    <div class="security-box">際限のない消費</div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-8 rounded-xl shadow-lg border">
+                        <h3 class="text-2xl font-bold text-center mb-6">Google Cloud観点の具体的なセキュリティ対策</h3>
+                        <div class="space-y-8">
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4">IAM権限に関連した対策</h4>
+                                <img src="http://googleusercontent.com/file_content/4" alt="IAMによるアクセス制御" class="rounded-lg mx-auto max-w-full h-auto">
+                            </div>
+                             <div>
+                                <h4 class="text-xl font-semibold mb-4">通信・データの暗号化に関連した対策</h4>
+                                <img src="http://googleusercontent.com/file_content/7" alt="Secret Managerによる機密情報の管理" class="rounded-lg mx-auto max-w-full h-auto">
+                            </div>
+                             <div>
+                                <h4 class="text-xl font-semibold mb-4">意図しないデータアクセス制御に関連した対策</h4>
+                                <img src="http://googleusercontent.com/file_content/9" alt="外部通信の制御" class="rounded-lg mx-auto max-w-full h-auto">
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4">異常な振る舞いに対するロギング観点の対策</h4>
+                                <img src="http://googleusercontent.com/file_content/1" alt="Cloud Loggingによる異常パターンの記録" class="rounded-lg mx-auto max-w-full h-auto">
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4">コスト消費を考慮したリソース制御に対する対策</h4>
+                                <img src="http://googleusercontent.com/file_content/4" alt="GPUクォータとインスタンス数の制御" class="rounded-lg mx-auto max-w-full h-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="summary" class="py-20">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">セキュリティ対策に関するまとめ</h2>
+                 </div>
+                 <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border">
+                    <ul class="space-y-4 list-disc list-inside text-lg">
+                        <li>IAM認証によるCloud Runアクセス制御</li>
+                        <li>IAPを利用した認証</li>
+                        <li>External ALBにおけるデフォルトSSLポリシーの変更</li>
+                        <li>Secret Managerを利用した機密データの管理</li>
+                        <li>Direct VPC Egress等によるパブリックアクセスの制御</li>
+                        <li>異常パターンのロギング</li>
+                        <li>インスタンス数やクォータ制御による想定外コスト発生の抑止</li>
+                    </ul>
+                 </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Google Cloud Next Tokyo. AIによって生成されたインタラクティブレポートです。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const nextBtn = document.getElementById('flow-next');
+            const resetBtn = document.getElementById('flow-reset');
+            const flowText = document.getElementById('flow-text');
+            
+            const arrows = {
+                userHost: document.getElementById('arrow-user-host'),
+                hostLlm: document.getElementById('arrow-host-llm'),
+                hostMcp1: document.getElementById('arrow-host-mcp1'),
+                hostMcp2: document.getElementById('arrow-host-mcp2'),
+                mcpData: document.getElementById('arrow-mcp-data'),
+            };
+
+            const textSteps = [
+                "ユーザーがAIアプリケーションに問いかけやタスクを依頼",
+                "モデルが入力を処理し、回答に必要な情報を特定",
+                "必要に応じてMCPサーバーに情報を問い合わせ",
+                "MCPサーバーから得られた情報を集約して回答を生成"
+            ];
+
+            let currentStep = 0;
+
+            function updateFlow() {
+                // Reset all opacities
+                Object.values(arrows).forEach(arrow => arrow.style.opacity = '0');
+                flowText.textContent = '';
+
+                if (currentStep >= 1) {
+                    arrows.userHost.style.opacity = '1';
+                    flowText.textContent = textSteps[0];
+                }
+                if (currentStep >= 2) {
+                    arrows.hostLlm.style.opacity = '1';
+                    flowText.textContent = textSteps[1];
+                }
+                if (currentStep >= 3) {
+                    arrows.hostMcp1.style.opacity = '1';
+                    arrows.hostMcp2.style.opacity = '1';
+                    arrows.mcpData.style.opacity = '1';
+                    flowText.textContent = textSteps[2];
+                }
+                if (currentStep >= 4) {
+                    flowText.textContent = textSteps[3];
+                }
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentStep < textSteps.length) {
+                    currentStep++;
+                    updateFlow();
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                currentStep = 0;
+                updateFlow();
+            });
+        });
+    </script>
+</body>
+</html>

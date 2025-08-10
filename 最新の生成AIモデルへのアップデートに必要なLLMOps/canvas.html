@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最新の生成AIモデルへのアップデートに必要なLLMOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Green, Yellow & Slate -->
+    <!-- Application Structure Plan: A structured, educational journey. It starts with the "Why" – the rapid evolution of AI. It then defines the core problem ("Risk of Accuracy Degradation"). It introduces the LLMOps lifecycle as the structured solution. Finally, it showcases the specific Vertex AI tools ("How") that enable this lifecycle, with deep dives into Prompt Optimizer and Gen AI Evaluation Service, and concludes with a summary workflow. This structure logically leads the user from the problem to the solution and the tools to implement it. -->
+    <!-- Visualization & Content Choices: 
+        - Gemini Model Table: Goal: Inform. Method: HTML Table. Justification: The clearest way to present structured data like model IDs and dates.
+        - Customer Support Lifecycle: Goal: Show Process/Change. Method: A multi-stage HTML/CSS diagram. Justification: Effectively visualizes the degradation of service quality over time.
+        - LLMOps Lifecycle Phases: Goal: Organize/Inform. Method: A four-column grid layout. Justification: Clearly presents the distinct stages of the LLMOps lifecycle.
+        - LLMOps Tools Workflow: Goal: Show Process. Method: A timeline-like HTML/CSS diagram. Justification: Maps the abstract workflow to concrete Vertex AI tools.
+        - Evaluation Service Metrics: Goal: Compare/Inform. Method: HTML/CSS diagrams. Justification: Clearly explains the different evaluation approaches (point-wise, pair-wise, computation-based). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-green-600">
+                LLMOps<span class="text-slate-600"> on Google Cloud</span>
+            </div>
+            <div class="hidden md:flex flex-wrap space-x-6">
+                <a href="#intro" class="text-slate-600 hover:text-green-600 transition">はじめに</a>
+                <a href="#risk" class="text-slate-600 hover:text-green-600 transition">精度のリスク</a>
+                <a href="#lifecycle" class="text-slate-600 hover:text-green-600 transition">LLMOpsライフサイクル</a>
+                <a href="#tools" class="text-slate-600 hover:text-green-600 transition">Vertex AIの機能</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="intro" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">最新の生成AIモデルへのアップデートに<br>必要なLLMOps</h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto mt-6">日々進化する生成AIを使いこなすためには、LLM（大規模言語モデル）の進化と普及により、AIを使ったシステムの運用も複雑化しています。常に最新のモデルを使い、高い精度によってビジネスの価値を生むには運用の設計が重要です。</p>
+            </div>
+        </section>
+
+        <section id="gemini-updates" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Geminiの場合：急速なモデル更新</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">GoogleのGeminiモデルファミリーは、数ヶ月単位で新しいバージョンがリリースされ、古いバージョンは廃止されます。このスピードに対応する必要があります。</p>
+                </div>
+                <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-500">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">モデルID</th>
+                                <th scope="col" class="px-6 py-3">リリース日</th>
+                                <th scope="col" class="px-6 py-3">廃止日</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-medium text-slate-900">gemini-2.5-pro</td>
+                                <td class="px-6 py-4">2025年4月17日</td>
+                                <td class="px-6 py-4">2026年6月17日</td>
+                            </tr>
+                            <tr class="bg-slate-50 border-b">
+                                <td class="px-6 py-4 font-medium text-slate-900">gemini-2.5-flash</td>
+                                <td class="px-6 py-4">2025年4月17日</td>
+                                <td class="px-6 py-4">2026年6月17日</td>
+                            </tr>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-medium text-slate-900">gemini-2.0-flash-001</td>
+                                <td class="px-6 py-4">2025年2月5日</td>
+                                <td class="px-6 py-4">2026年2月5日</td>
+                            </tr>
+                            <tr class="bg-slate-50">
+                                <td class="px-6 py-4 font-medium text-slate-900">gemini-2.0-flash-lite-001</td>
+                                <td class="px-6 py-4">2025年2月25日</td>
+                                <td class="px-6 py-4">2026年2月25日</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="risk" class="py-20 bg-green-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-green-800">精度劣化のリスク</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">AIモデルは導入して終わりではありません。時間の経過とともに、ビジネス環境やデータの変化により、精度が劣化するリスクがあります。</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border">
+                    <h3 class="text-2xl font-semibold text-center mb-8">カスタマーサポートの半自動化（仮想）</h3>
+                    <img src="http://googleusercontent.com/file_content/8" alt="カスタマーサポートのライフサイクル" class="rounded-lg mx-auto max-w-full h-auto">
+                </div>
+            </div>
+        </section>
+        
+        <section id="lifecycle" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">LLMOps ライフサイクル</h2>
+                     <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">LLMOpsは、データ管理からモニタリングまで、モデルのライフサイクル全体を体系的に管理するアプローチです。</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-3">データマネジメント</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li>高品質なデータを使用</li>
+                            <li>データを効率的に管理</li>
+                            <li>データガバナンスの確立</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-3">モデルのトレーニング</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li>適切なアルゴリズムを選択</li>
+                            <li>トレーニングパラメータを最適化</li>
+                            <li>トレーニングの進行状況をモニタリング</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-3">デプロイ</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li>適切なデプロイ戦略を選択</li>
+                            <li>デプロイのパフォーマスを最適化</li>
+                            <li>セキュリティを確保</li>
+                        </ul>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-3">モニタリング</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li>モニタリング指標を確立</li>
+                            <li>リアルタイムモニタリングの実装</li>
+                            <li>モニタリングデータの分析</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Vertex AIの機能</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">Google CloudのVertex AIは、LLMOpsの実践を支援する強力なツール群を提供します。</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-xl border mb-12">
+                    <h3 class="text-2xl font-semibold text-center mb-8">LLMOpsの一例</h3>
+                    <img src="http://googleusercontent.com/file_content/2" alt="LLMOpsのワークフロー例" class="rounded-lg mx-auto max-w-full h-auto">
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <h3 class="text-2xl font-semibold text-center my-12">Vertex AI - Gen AI Evaluation Service</h3>
+                     <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="font-bold text-lg mb-2">評価のアプローチ</h4>
+                            <img src="http://googleusercontent.com/file_content/1" alt="評価アプローチの比較" class="rounded-lg border">
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="font-bold text-lg mb-2">評価指標の種類</h4>
+                            <img src="http://googleusercontent.com/file_content/3" alt="評価指標の種類" class="rounded-lg border">
+                        </div>
+                         <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="font-bold text-lg mb-2">計算ベースの指標</h4>
+                            <img src="http://googleusercontent.com/file_content/4" alt="計算ベースの指標" class="rounded-lg border">
+                        </div>
+                    </div>
+                </div>
+                 <div class="max-w-4xl mx-auto mt-12">
+                    <h3 class="text-2xl font-semibold text-center my-12">様々な作業の自動化</h3>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <img src="http://googleusercontent.com/file_content/5" alt="Vertex AI PipelinesとWorkbenchによる自動化" class="rounded-lg border">
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Google Cloud Next Tokyo. AIによって生成されたインタラクティブレポートです。</p>
+        </div>
+    </footer>
+
+    <script>
+        // No interactive scripts needed for this version.
+    </script>
+</body>
+</html>

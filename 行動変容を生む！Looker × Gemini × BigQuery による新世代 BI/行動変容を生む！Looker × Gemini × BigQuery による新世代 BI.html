@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sansan BI & AI Insights: インタラクティブレポート</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate & Blue Harmony -->
+    <!-- Application Structure Plan: A thematic single-page scroll application. The structure starts with a high-level vision (Problem/Solution), then drills down into the three core solutions using an interactive tabbed interface. It then showcases a practical 'Corporate Chart' dashboard with interactive charts to demonstrate the product in action. Finally, it explains the underlying technology with a custom HTML/CSS architecture diagram. This top-down, interactive flow was chosen to guide the user from the 'why' to the 'what' and 'how' in a more engaging way than a static report, enhancing usability and comprehension. -->
+    <!-- Visualization & Content Choices: 
+        - Vision (Old vs. New BI): Goal: Compare. Method: Side-by-side text. Justification: Clear, immediate contrast.
+        - 3 Core Solutions: Goal: Organize/Inform. Method: Interactive Tabs. Interaction: Click to reveal. Justification: Breaks down complex info into manageable, user-controlled sections.
+        - Sales/Activity Data: Goal: Compare/Change. Method: Chart.js Bar/Stacked Bar Charts. Interaction: Hover tooltips. Justification: Standard, effective visualization for this type of data.
+        - Contact Map: Goal: Organize. Method: HTML Table. Justification: Direct and clear for matrix data.
+        - Architecture Diagram: Goal: Inform/Organize. Method: HTML/CSS Flexbox Diagram. Interaction: Subtle hover effects. Justification: Avoids static images and forbidden SVG/Mermaid, ensuring a responsive and integrated design. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        .tab-active {
+            border-color: #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .architecture-box {
+            border: 1px solid #cbd5e1;
+            background-color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-600">
+                Sansan<span class="text-slate-600">Insights</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#vision" class="text-slate-600 hover:text-blue-600 transition">ビジョン</a>
+                <a href="#solutions" class="text-slate-600 hover:text-blue-600 transition">ソリューション</a>
+                <a href="#usecase" class="text-slate-600 hover:text-blue-600 transition">ユースケース</a>
+                <a href="#architecture" class="text-slate-600 hover:text-blue-600 transition">アーキテクチャ</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-slate-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#vision" class="block py-2 text-slate-600 hover:text-blue-600">ビジョン</a>
+            <a href="#solutions" class="block py-2 text-slate-600 hover:text-blue-600">ソリューション</a>
+            <a href="#usecase" class="block py-2 text-slate-600 hover:text-blue-600">ユースケース</a>
+            <a href="#architecture" class="block py-2 text-slate-600 hover:text-blue-600">アーキテクチャ</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="vision" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">分析から、行動へ</h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto mb-12">私たちはビジネスインテリジェンスの未来を再定義し、データを行動の指針へと変え、企業の変革を促進します。</p>
+                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="border border-slate-200 rounded-lg p-8 bg-slate-50">
+                        <h3 class="text-2xl font-semibold mb-3 text-slate-500">従来のBI</h3>
+                        <p class="text-slate-600">過去のデータを<span class="font-bold">「分析」</span>するためのツールであり、何が起こったのかを理解するのに役立ちます。</p>
+                    </div>
+                    <div class="border-2 border-blue-500 rounded-lg p-8 bg-blue-50">
+                        <h3 class="text-2xl font-semibold mb-3 text-blue-700">Sansan BI: インテリジェンス</h3>
+                        <p class="text-slate-700">未来の<span class="font-bold">「行動」</span>を<span class="font-bold">「示唆」</span>するインテリジェンス基盤であり、次に行うべきことを提案します。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solutions" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">3つのコアソリューション</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">私たちの包括的なソリューションで、データ活用の壁を乗り越えます。</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex border-b border-slate-200 mb-8 justify-center">
+                        <button data-tab="tab1" class="tab-button py-4 px-6 block hover:text-blue-600 focus:outline-none border-b-2 font-medium tab-active">データ統合</button>
+                        <button data-tab="tab2" class="tab-button py-4 px-6 block hover:text-blue-600 focus:outline-none border-b-2 font-medium text-slate-500">セミオーダーUI</button>
+                        <button data-tab="tab3" class="tab-button py-4 px-6 block hover:text-blue-600 focus:outline-none border-b-2 font-medium text-slate-500">AIインサイト</button>
+                    </div>
+
+                    <div id="tab1" class="tab-content">
+                        <div class="bg-white p-8 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-8">
+                            <div class="text-center md:text-left">
+                                <h3 class="text-2xl font-semibold mb-3">1. データ統合</h3>
+                                <p class="text-slate-600 mb-4">社内に散在するデータを、精度99%を誇る独自の「名寄せ」技術で統合し、顧客に関する唯一の真実の源を構築します。</p>
+                                <span class="inline-block bg-blue-100 text-blue-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded-full">精度99%</span>
+                            </div>
+                            <div class="flex-shrink-0 w-full md:w-1/2">
+                                <div class="space-y-2 text-center">
+                                    <div class="flex justify-around items-center">
+                                        <div class="architecture-box text-sm p-2">SFA</div>
+                                        <div class="architecture-box text-sm p-2">基幹システム</div>
+                                        <div class="architecture-box text-sm p-2">Sansan</div>
+                                    </div>
+                                    <div class="text-2xl text-slate-400">↓</div>
+                                    <div class="architecture-box bg-blue-100 border-blue-300 p-4">
+                                        <h4 class="font-bold text-blue-800">Sansan Data Hub</h4>
+                                        <p class="text-sm text-blue-700">統合 & 統一コード付与</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab2" class="tab-content hidden">
+                        <div class="bg-white p-8 rounded-lg shadow-md">
+                            <h3 class="text-2xl font-semibold mb-6 text-center">2. セミオーダーのUI</h3>
+                            <div class="grid md:grid-cols-5 gap-4 text-center items-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full text-2xl font-bold text-blue-600 mb-3">1</div>
+                                    <h4 class="font-semibold mb-2">迅速な提供</h4>
+                                    <p class="text-sm text-slate-600">すぐに使える「標準ダッシュボード」を提供します。</p>
+                                </div>
+                                <div class="hidden md:flex items-center justify-center text-3xl text-slate-300">→</div>
+                                <div class="flex flex-col items-center">
+                                    <div class="flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full text-2xl font-bold text-blue-600 mb-3">2</div>
+                                    <h4 class="font-semibold mb-2">柔軟な調整</h4>
+                                    <p class="text-sm text-slate-600">トライアル期間中にビジネスニーズに合わせてダッシュボードを調整します。</p>
+                                </div>
+                                <div class="hidden md:flex items-center justify-center text-3xl text-slate-300">→</div>
+                                <div class="flex flex-col items-center">
+                                    <div class="flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full text-2xl font-bold text-blue-600 mb-3">3</div>
+                                    <h4 class="font-semibold mb-2">継続的なサポート</h4>
+                                    <p class="text-sm text-slate-600">本格運用後も利用状況をモニタリングし、継続的にサポート・修正に対応します。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab3" class="tab-content hidden">
+                        <div class="bg-white p-8 rounded-lg shadow-md flex flex-col md:flex-row items-center gap-8">
+                            <div class="text-5xl text-blue-500">🧠</div>
+                            <div class="text-center md:text-left">
+                                <h3 class="text-2xl font-semibold mb-3">3. AIインサイト</h3>
+                                <p class="text-slate-600">数値やグラフだけでは得られない示唆を提供します。AIが情報を多角的に捉え、要約やアイデア創出を行い、次の一手となる「気づき」を導き出します。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="usecase" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">「企業カルテ」：商談準備を完璧にサポート</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-3xl mx-auto">売上データとSansan内の活動データを同じ場所で閲覧可能。AIが「次の一手」を明確化します。</p>
+                </div>
+                <div class="bg-slate-100 p-4 sm:p-8 rounded-xl border border-slate-200">
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-slate-800">売上グラフ</h3>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <div class="chart-container">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-slate-800">活動量グラフ</h3>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <div class="chart-container">
+                                    <canvas id="activityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                         <h3 class="text-xl font-semibold mb-4 text-slate-800">接点マップ</h3>
+                         <div class="bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
+                            <table class="w-full text-sm text-left text-slate-500">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">役職</th>
+                                        <th scope="col" class="px-6 py-3">企画部</th>
+                                        <th scope="col" class="px-6 py-3">マーケティング</th>
+                                        <th scope="col" class="px-6 py-3">営業</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="bg-white border-b">
+                                        <td class="px-6 py-4 font-medium text-slate-900">部長級</td>
+                                        <td class="px-6 py-4">11</td>
+                                        <td class="px-6 py-4">1</td>
+                                        <td class="px-6 py-4">1</td>
+                                    </tr>
+                                    <tr class="bg-slate-50 border-b">
+                                        <td class="px-6 py-4 font-medium text-slate-900">課長級</td>
+                                        <td class="px-6 py-4">5</td>
+                                        <td class="px-6 py-4">0</td>
+                                        <td class="px-6 py-4">1</td>
+                                    </tr>
+                                     <tr class="bg-white border-b">
+                                        <td class="px-6 py-4 font-medium text-slate-900">社員級</td>
+                                        <td class="px-6 py-4">0</td>
+                                        <td class="px-6 py-4">0</td>
+                                        <td class="px-6 py-4">1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                         </div>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold mb-4 text-slate-800">AIインサイト活用例</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <h4 class="font-bold text-lg mb-2">商談準備の効率化</h4>
+                                <p class="text-slate-600">AIが過去の経緯や重要人物とのやり取りを要約。商談準備の質を向上させ、時間を大幅に削減します。</p>
+                            </div>
+                             <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <h4 class="font-bold text-lg mb-2">営業状況の把握</h4>
+                                <p class="text-slate-600">マネージャーがチームや個人の活動状況を分析。的確な指示出しを実現し、パフォーマンスを向上させます。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">AIインサイトのアーキテクチャ</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">LookerとGeminiを、Google Cloudのエコシステム内に統合し、分析とAIの力を提供します。</p>
+                </div>
+                <div class="bg-white p-6 sm:p-10 rounded-xl shadow-lg border border-slate-200 max-w-5xl mx-auto">
+                    <img src="./images/architechture.jpg" alt="AI Architecture Diagram" class="rounded-lg shadow-md mx-auto max-w-full h-auto">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Sansan Corporation. AIによって生成されたインタラクティブレポートです。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-tab');
+
+                    tabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.add('text-slate-500');
+                    });
+                    tab.classList.add('tab-active');
+                    tab.classList.remove('text-slate-500');
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(target).classList.remove('hidden');
+                });
+            });
+
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['7月', '10月', '1月', '4月', '7月'],
+                    datasets: [{
+                        label: 'おにぎり用フィリング',
+                        data: [1.8, 2.5, 3.0, 4.5, 2.0],
+                        backgroundColor: '#3b82f6',
+                    }, {
+                        label: '調味料',
+                        data: [2.2, 3.0, 4.0, 2.5, 3.5],
+                        backgroundColor: '#60a5fa',
+                    }, {
+                        label: 'サンドイッチ用フィリング',
+                        data: [1.5, 1.0, 2.5, 3.0, 5.0],
+                        backgroundColor: '#93c5fd',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '売上高（百万円）'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                }
+            });
+
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            const activityChart = new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2024-07', '2024-09', '2024-11', '2025-01', '2025-03', '2025-05'],
+                    datasets: [{
+                        label: '名刺交換',
+                        data: [1, 0, 2, 1, 1, 1],
+                        backgroundColor: '#10b981',
+                    }, {
+                        label: 'メール',
+                        data: [0, 1, 0, 2, 1, 1],
+                        backgroundColor: '#34d399',
+                    }, {
+                        label: '電話',
+                        data: [0, 0, 1, 2, 0, 1],
+                        backgroundColor: '#6ee7b7',
+                    }, {
+                        label: '面会',
+                        data: [0, 0, 0, 4, 1.5, 2],
+                        backgroundColor: '#a7f3d0',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '活動量'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                         tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

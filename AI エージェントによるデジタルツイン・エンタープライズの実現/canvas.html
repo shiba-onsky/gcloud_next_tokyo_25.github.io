@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIエージェントによるデジタルツイン・エンタープライズの実現</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Purple & Slate Harmony -->
+    <!-- Application Structure Plan: A narrative-driven SPA that guides the user through Accenture's vision. It starts with the evolution of AI to set the context. It then presents the potential impact on labor with an interactive chart to make the data engaging. The core of the application explains the "Digital Twin Enterprise" concept, showing how AI agents interact. It then breaks down the agent types and hierarchy for clarity. Finally, it provides concrete case studies (invoice processing, CxO decision making, marketing, etc.) to demonstrate the practical application. This structure was chosen to build understanding layer by layer, from the abstract to the concrete. -->
+    <!-- Visualization & Content Choices: 
+        - AI Evolution: Goal: Show Change. Method: Timeline with HTML/CSS. Interaction: Hover effects. Justification: A timeline is the most intuitive way to show progression over time.
+        - Labor Impact: Goal: Compare/Inform. Method: Chart.js Horizontal Bar Chart. Interaction: Tooltips on hover. Justification: A horizontal bar chart is excellent for comparing categories (industries) and their values.
+        - Worldview/Architecture Diagrams: Goal: Organize/Inform. Method: Custom HTML/CSS Flexbox diagrams. Justification: Avoids static images and forbidden SVG/Mermaid, ensuring responsiveness and a clean, integrated look.
+        - Agent Hierarchy: Goal: Organize. Method: Nested HTML/CSS structure. Justification: Clearly represents the hierarchical relationship between agent types.
+        - Case Study Flow: Goal: Show Process. Method: Sequential HTML/CSS diagram. Justification: Illustrates the P2P process flow clearly and logically.
+        - CxO Twin Diagram: Goal: Organize/Show Relationship. Method: Custom HTML/CSS circular diagram. Justification: Effectively shows the central role of the AI facilitator and the interaction between CxO agents. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .diagram-box {
+            border: 1px solid #d1d5db;
+            background-color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .diagram-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.75rem;
+            top: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: white;
+            border: 4px solid #a78bfa;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-violet-600">
+                Accenture<span class="text-slate-600"> AI Agents</span>
+            </div>
+            <div class="hidden md:flex flex-wrap space-x-4 text-sm lg:text-base lg:space-x-6">
+                <a href="#evolution" class="text-slate-600 hover:text-violet-600 transition">AIの進化</a>
+                <a href="#impact" class="text-slate-600 hover:text-violet-600 transition">労働への影響</a>
+                <a href="#digital-twin" class="text-slate-600 hover:text-violet-600 transition">デジタルツイン</a>
+                <a href="#case-studies" class="text-slate-600 hover:text-violet-600 transition">ケーススタディ</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="title" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">AIエージェントによる<br>デジタルツイン・エンタープライズの実現</h1>
+                <p class="text-lg text-slate-600">2025.08.05</p>
+            </div>
+        </section>
+
+        <section id="evolution" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">生成AIからAIエージェントへ</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">AIは単なる応答システムから、自律的に思考し、行動するエージェントへと進化しています。</p>
+                </div>
+                <div class="relative max-w-3xl mx-auto">
+                    <div class="border-l-4 border-violet-200 absolute h-full top-0 left-[-1.75rem]"></div>
+                    <div class="space-y-16">
+                        <div class="pl-8 relative timeline-item">
+                            <h3 class="text-2xl font-semibold text-violet-700 mb-2">生成AI (2022~2024)</h3>
+                            <p class="text-slate-600">過去の膨大なデータに基づき、大規模言語モデルを通じて言語を中心に処理。人間が与えたプロンプトに基づき、GenAIが応答する仕組み。</p>
+                        </div>
+                        <div class="pl-8 relative timeline-item">
+                            <h3 class="text-2xl font-semibold text-violet-700 mb-2">AIエージェント (2025~)</h3>
+                            <p class="text-slate-600">LLMを特定の環境やタスクに特化させたシングルAIエージェント。OpenAIのDeep ResearchやAI検索のPerplexityなど。</p>
+                        </div>
+                        <div class="pl-8 relative timeline-item">
+                            <h3 class="text-2xl font-semibold text-violet-700 mb-2">AGI (2026~2028)</h3>
+                            <p class="text-slate-600">実在する人物の専門や人格をマルチエージェント化。エージェント同士で、対話・判断・意思決定を行い、リアルワールドに近い状態を実現。</p>
+                        </div>
+                        <div class="pl-8 relative timeline-item">
+                            <h3 class="text-2xl font-semibold text-violet-700 mb-2">ASI (10年後)</h3>
+                            <p class="text-slate-600">人間以上のスピードで自己学習と自己進化を実現することで、人間の能力を凌駕するスーパーインテリジェンスを獲得。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">AIエージェントによる潜在的な労働時間への影響</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">影響を受けない業界は皆無。業界平均で44%の労働時間が大きな影響を受ける可能性があります。</p>
+                </div>
+                <div class="bg-slate-50 p-4 sm:p-8 rounded-xl border border-slate-200">
+                    <h3 class="text-xl font-semibold mb-4 text-slate-800 text-center">業界別の労働時間分布とAIの潜在的な影響</h3>
+                    <div class="chart-container">
+                        <canvas id="impactChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="digital-twin" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">生成AIによるデジタルツイン・エンタープライズの実現へ</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">経営層から現場のオペレーションまで、全ての企業活動がAIにシフト。AIエージェントが仮想顧客としても活用可能に。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl border shadow-lg">
+                    <img src="http://googleusercontent.com/file_content/5" alt="デジタルツイン・エンタープライズの構造図" class="rounded-lg shadow-md mx-auto max-w-full h-auto">
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">ケーススタディ</h2>
+                    <p class="text-lg text-slate-600 mt-4 max-w-2xl mx-auto">AIエージェントが実際のビジネスシーンでどのように活用されているかをご紹介します。</p>
+                </div>
+
+                <!-- Case Study 1: Entertainment -->
+                <div class="mb-20">
+                    <div class="p-8 rounded-lg bg-violet-600 text-white text-center mb-12 shadow-2xl">
+                        <h3 class="text-3xl font-bold">ケーススタディ 1: エンタメ企業</h3>
+                        <p class="text-xl mt-2">アーティストファンエージェント生成による顧客理解と施策創出</p>
+                    </div>
+                    
+                    <div class="space-y-12">
+                        <h4 class="text-2xl font-bold text-center text-slate-800">AIエージェントによるcLTV（ファン）最大化プロセス</h4>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h5 class="font-semibold text-lg text-center mb-4">STAGE 1: ファンエージェント生成・施策初期検討</h5>
+                            <img src="http://googleusercontent.com/file_content/1" alt="cLTV最大化 Stage 1" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h5 class="font-semibold text-lg text-center mb-4">STAGE 2: 施策検討精緻化</h5>
+                            <img src="http://googleusercontent.com/file_content/2" alt="cLTV最大化 Stage 2" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h5 class="font-semibold text-lg text-center mb-4">STAGE 3: 施策効果分析</h5>
+                            <img src="http://googleusercontent.com/file_content/3" alt="cLTV最大化 Stage 3" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                         <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h5 class="font-semibold text-lg text-center mb-4">詳細分析：XXXファンエージェント生成</h5>
+                            <img src="http://googleusercontent.com/file_content/5" alt="ファンエージェント生成詳細" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h5 class="font-semibold text-lg text-center mb-4">詳細分析：施策の検討（個性派音楽愛好層の獲得）</h5>
+                            <img src="http://googleusercontent.com/file_content/7" alt="施策検討詳細" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Case Study 2: Printing -->
+                <div>
+                    <div class="p-8 rounded-lg bg-teal-600 text-white text-center mb-12 shadow-2xl">
+                        <h3 class="text-3xl font-bold">ケーススタディ 2: 総合印刷企業</h3>
+                        <p class="text-xl mt-2">新商品開発／企画・戦略創出</p>
+                    </div>
+                    <div class="space-y-12">
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h4 class="text-2xl font-bold text-center text-slate-800 mb-6">アプローチ（食品業界を1例として）</h4>
+                            <img src="http://googleusercontent.com/file_content/3" alt="総合印刷企業アプローチ" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h4 class="text-2xl font-bold text-center text-slate-800 mb-6">専門家・消費者エージェントAI構築</h4>
+                            <img src="http://googleusercontent.com/file_content/1" alt="専門家・消費者エージェントAI構築" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h4 class="text-2xl font-bold text-center text-slate-800 mb-6">① 未来シナリオシミュレーション：「食」×短期</h4>
+                            <img src="http://googleusercontent.com/file_content/2" alt="未来シナリオシミュレーション 食" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                         <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h4 class="text-2xl font-bold text-center text-slate-800 mb-6">① 未来シナリオシミュレーション：「食品包装材」×短期</h4>
+                            <img src="http://googleusercontent.com/file_content/5" alt="未来シナリオシミュレーション 食品包装材" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h4 class="text-2xl font-bold text-center text-slate-800 mb-6">② 商品開発・3Cシミュレーション</h4>
+                            <img src="http://googleusercontent.com/file_content/6" alt="商品開発・3Cシミュレーション" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                         <div class="bg-slate-50 p-6 rounded-xl border">
+                            <h4 class="text-2xl font-bold text-center text-slate-800 mb-6">デモ画面(1/4) 未来シナリオシミュレーション 業界予測</h4>
+                            <img src="http://googleusercontent.com/file_content/7" alt="デモ画面 未来シナリオシミュレーション" class="rounded-lg mx-auto max-w-full h-auto">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Accenture. All rights reserved. AIによって生成されたインタラクティブレポートです。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const impactCtx = document.getElementById('impactChart').getContext('2d');
+            const impactChart = new Chart(impactCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['証券', 'エンタメ/ソフトウェア', '保険', '銀行', '通信&メディア', '公益事業', '一般消費財メーカー', 'ハイテク産業', '日本平均', '旅行', 'ライフサイエンス', '自動車', '産業機器', 'ヘルスケア', 'エネルギー', '電気・ガス・水道', '天然資源', '化学', '耐久消費財'],
+                    datasets: [{
+                        label: '影響: 大',
+                        data: [29, 38, 30, 37, 28, 27, 28, 25, 25, 23, 25, 28, 25, 15, 21, 20, 20, 20, 16],
+                        backgroundColor: '#8b5cf6',
+                    }, {
+                        label: '影響: 中',
+                        data: [47, 35, 40, 32, 29, 23, 20, 23, 19, 20, 18, 14, 15, 22, 17, 12, 10, 10, 11],
+                        backgroundColor: '#a78bfa',
+                    }, {
+                        label: '影響: 小',
+                        data: [18, 20, 19, 24, 15, 30, 14, 20, 9, 12, 12, 11, 39, 16, 10, 8, 8, 11],
+                        backgroundColor: '#c4b5fd',
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: { display: true, text: '労働時間への影響割合 (%)' }
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        title: { display: false }
+                    },
+                }
+            });
+        });
+    </script>
+</body>
+</html>
